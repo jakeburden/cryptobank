@@ -1,5 +1,6 @@
-var jsonStream = require('duplex-json-stream')
 var net = require('net')
+var fs = require('fs')
+var jsonStream = require('duplex-json-stream')
 
 var log = []
 var commands = {
@@ -20,7 +21,8 @@ var server = net.createServer(function (stream) {
     console.log('Bank recieved:', msg)
 
     var options = Object.keys(commands)
-    if (options.indexOf(msg.command) === -1) return
+    var commandNotFound = options.indexOf(msg.command) === -1
+    if (commandNotFound) return
 
     log.push(msg)
 
@@ -33,6 +35,13 @@ var server = net.createServer(function (stream) {
       stream.write('Refused: not enough funding.')
       return
     }
+
+    // formats and writes entire log to disk on every transaction
+    // this should be optimized in the future
+    var prettyLog = JSON.stringify(log, null, 2)
+    fs.writeFile('data.json', prettyLog, function (err) {
+      if (err) console.error(err)
+    })
 
     stream.write({
       balance: balance

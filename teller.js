@@ -13,9 +13,11 @@ stream.once('data', function (data) {
 })
 
 var commands = ['deposit', 'withdraw', 'balance']
-if (commands.indexOf(cmd) === -1) {
-  console.error('commands are', JSON.stringify(commands))
-  stream.end(null)
+var commandNotFound = commands.indexOf(cmd) === -1
+
+if (commandNotFound) {
+  console.error('Command not found: (' + cmd + ').', 'Commands are', commands)
+  return stream.end()
 }
 
 var msg = payload(cmd, parseFloat(amount, 10))
