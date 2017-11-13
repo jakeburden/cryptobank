@@ -10,7 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "duplex-json-stream": "^1.0.1"
+    "duplex-json-stream": "^1.0.1",
+    "sodium-native": "^2.0.0"
   },
   "devDependencies": {
     "standard": "^10.0.3"

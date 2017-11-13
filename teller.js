@@ -17,7 +17,8 @@ var commandNotFound = commands.indexOf(cmd) === -1
 
 if (commandNotFound) {
   console.error('Command not found: (' + cmd + ').', 'Commands are', commands)
-  return stream.end()
+  stream.end()
+  process.exit(0)
 }
 
 var msg = payload(cmd, parseFloat(amount, 10))
