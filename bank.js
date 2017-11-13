@@ -2,7 +2,13 @@ var net = require('net')
 var fs = require('fs')
 var jsonStream = require('duplex-json-stream')
 
-var log = []
+var log
+try {
+  log = require('./data.json')
+} catch (e) {
+  log = []
+}
+
 var commands = {
   'deposit': function (sum, amount) {
     return sum + amount

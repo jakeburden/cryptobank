@@ -1,5 +1,6 @@
-var jsonStream = require('duplex-json-stream')
+var assert = require('assert')
 var net = require('net')
+var jsonStream = require('duplex-json-stream')
 
 var args = process.argv.slice(2)
 
@@ -13,13 +14,8 @@ stream.once('data', function (data) {
 })
 
 var commands = ['deposit', 'withdraw', 'balance']
-var commandNotFound = commands.indexOf(cmd) === -1
-
-if (commandNotFound) {
-  console.error('Command not found: (' + cmd + ').', 'Commands are', commands)
-  stream.end()
-  process.exit(0)
-}
+var notFoundMsg =  'No command: (' + cmd + '). Commands are ' + commands
+assert.notEqual(commands.indexOf(cmd), -1, notFoundMsg)
 
 var msg = payload(cmd, parseFloat(amount, 10))
 stream.end(msg)
