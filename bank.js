@@ -1,6 +1,8 @@
+var assert = require('assert')
 var net = require('net')
 var fs = require('fs')
 var jsonStream = require('duplex-json-stream')
+var sodium = require('sodium-native')
 
 var log
 try {
@@ -15,11 +17,24 @@ var commands = {
   },
   'withdraw': function (sum, amount) {
     return sum - amount
-  },
-  'balance': function (sum, amount) {
-    return sum + amount
   }
 }
+
+commands.balnce = commands.genesis = commands.withdraw
+
+var genesisHash = Buffer.alloc(sodium.crypto_generichash_BYTES)
+var genesisBuffer = Buffer.from('genesis hash')
+sodium.crypto_generichash(genesisHash, genesisBuffer)
+
+var genesisObj = {
+  value: {
+    command: 'genesis',
+    amount: 0
+  },
+  hash: genesisHash.toString('hex')
+}
+
+log.push(genesisObj)
 
 var server = net.createServer(function (stream) {
   stream = jsonStream(stream)
@@ -30,10 +45,21 @@ var server = net.createServer(function (stream) {
     var commandNotFound = options.indexOf(msg.command) === -1
     if (commandNotFound) return
 
-    log.push(msg)
+    // append transaction to log
+    var prevHash = log[log.length - 1].hash
+    log.push({
+      value: msg,
+      hash: hashToHex(prevHash + JSON.stringify(msg))
+    })
 
-    var balance = log.reduce(function (sum, msg) {
-      return commands[msg.command](sum, msg.amount)
+    var balance = log.reduce(function (sum, entry, idx) {
+      if (idx !== 0) { // not genesis block
+        // verify hash 
+        var prevHash = log[idx - 1].hash
+        var computedHash = hashToHex(prevHash + JSON.stringify(entry.value))
+        assert.equal(computedHash, entry.hash)
+      }
+      return commands[entry.value.command](sum, entry.value.amount)
     }, 0)
 
     if (balance < 0) {
@@ -56,3 +82,10 @@ var server = net.createServer(function (stream) {
 })
 
 server.listen(3876)
+
+function hashToHex (value) {
+  var out = Buffer.alloc(sodium.crypto_generichash_BYTES)
+  var buf = Buffer.from(value)
+  sodium.crypto_generichash(out, buf)
+  return out.toString('hex')
+}
