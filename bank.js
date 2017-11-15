@@ -20,18 +20,14 @@ var commands = {
   }
 }
 
-commands.balnce = commands.genesis = commands.withdraw
-
-var genesisHash = Buffer.alloc(sodium.crypto_generichash_BYTES)
-var genesisBuffer = Buffer.from('genesis hash')
-sodium.crypto_generichash(genesisHash, genesisBuffer)
+commands.balance = commands.genesis = commands.withdraw
 
 var genesisObj = {
   value: {
     command: 'genesis',
     amount: 0
   },
-  hash: genesisHash.toString('hex')
+  hash: hashToHex('genesis hash')
 }
 
 log.push(genesisObj)
