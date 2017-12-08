@@ -149,9 +149,6 @@ var server = net.createServer(function (stream) {
       nonce: nonce.toString('hex')
     }
 
-    var plainText = Buffer.alloc(cipher.length - sodium.crypto_secretbox_MACBYTES)
-    sodium.crypto_secretbox_open_easy(plainText, cipher, nonce, boxSecretKey)
-
     // formats and writes entire log to disk on every transaction
     // this should be optimized in the future
     write('data.json', encryptedLog, function (err) {
