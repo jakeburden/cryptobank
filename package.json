@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "duplex-json-stream": "^1.0.1",
+    "run-parallel": "^1.1.6",
     "sodium-native": "^2.0.0"
   },
   "devDependencies": {
