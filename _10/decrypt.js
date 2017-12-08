@@ -2,14 +2,14 @@ var fs = require('fs')
 var join = require('path').join
 var sodium = require('sodium-native')
 
-var payload = require('./cipher.json')
-var cipher = Buffer.from(payload.cipher, 'hex')
-var nonce = Buffer.from(payload.nonce, 'hex')
 
-var secretKey = fs.readFileSync(join(__dirname, 'key.txt'))
-var key = Buffer.from(secretKey, 'hex')
+fs.readFile(join(__dirname, 'key.txt'), function (err, secretKey) {
+  var payload = require('./cipher.json')
+  var cipher = Buffer.from(payload.cipher, 'hex')
+  var nonce = Buffer.from(payload.nonce, 'hex')
 
-var plainText = Buffer.alloc(16)
-sodium.crypto_secretbox_open_easy(plainText, cipher, nonce, key)
+  var plainText = Buffer.alloc(cipher.length - sodium.crypto_secretbox_MACBYTES)
+  sodium.crypto_secretbox_open_easy(plainText, cipher, nonce, secretKey)
 
-console.log(plainText)
+  console.log(plainText.toString())
+})
